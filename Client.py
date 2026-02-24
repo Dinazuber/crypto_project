@@ -11,8 +11,10 @@ class Client:
     def send(self, message):
         self.client_socket.send(message.encode())
     
-    def receive(self, timeout=0.001):
-        self
+    def receive(self):
+        while True:
+            data = self.client_socket.recv()
+            
     
     def close(self):
         self.client_socket.close

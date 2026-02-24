@@ -9,7 +9,7 @@ class Client:
         self.client_socket.connect(("vlbelintrocrypto.hevs.ch", 6000))
     
     def send(self, message):
-        self.client_socket.send(message)
+        self.client_socket.send(message.encode())
     
     def receive(self, timeout=0.001):
         self

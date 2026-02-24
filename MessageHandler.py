@@ -1,13 +1,13 @@
 from FrameManager import FrameManager
 
 class MessageHandler:
-    def __init__(self, byte_per_char=4):
-        pass
+    def __init__(self, header='ISC'):
+        self.frame = FrameManager(header)
 
-    def add_data(self, data):
+    def add_data(data):
         """Add data recieved from network"""
     
-    def get_message(self):
+    def get_message():
         """Extract all complete message from buffer.
         Return a list of bytes (raw message)
         """
@@ -30,10 +30,10 @@ class MessageHandler:
         #Encode Length to 2 bytes and we keep only the strong bits
         length_bytes = len(message).to_bytes(2, 'big')
         #Encode the message using UTF-32
-        message_bytes = message.encode('utf-32-be')
+        message_bytes = message.encode('utf-8')
 
         #We get all those informations into a frame
-        frame = FrameManager.create_paquet(cmd_bytes, length_bytes, message_bytes)
+        frame = self.frame.create_packet(cmd_bytes, length_bytes, message_bytes)
 
         return frame
 

@@ -7,7 +7,7 @@ class FrameManager:
         self.length = len(payload)
     
     #Create the packet to send to the server
-    def create_paquet(self, cmd_bytes, length_bytes, message_bytes):
+    def create_packet(self, cmd_bytes, length_bytes, message_bytes):
         #Encode the header part (to be ready to send it to the server) for each character
         header_bytes = self.header.encode('ascii')
         return header_bytes + cmd_bytes + length_bytes + message_bytes

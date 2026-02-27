@@ -2,7 +2,7 @@ from Client import Client
 import threading
 
 def main():
-    print("Hello from crypto-project! tester omg")
+    print("Hello from crypto-project!")
     client = Client()
     client.connect("vlbelintrocrypto.hevs.ch", 6000)
     client.send("Hello", 't')

@@ -29,7 +29,7 @@ class MessageHandler:
         cmd_bytes = cmd.encode('ascii')
         #Encode Length to 2 bytes and we keep only the strong bits
         length_bytes = len(message).to_bytes(2, 'big')
-        #Encode the message using UTF-32
+        #Encode the message using UTF-8
         message_bytes = message.encode('utf-8')
 
         #We get all those informations into a frame
@@ -48,8 +48,8 @@ class MessageHandler:
         length = unframe[2]
         message_bytes = unframe[3]
 
-        #We decode the message with the same utf
-        message = message_bytes.decode('utf-32-be')
+        #We decode the message with the same utf-8
+        message = message_bytes.decode('utf-8')
 
         return (header, cmd, length, message)
     

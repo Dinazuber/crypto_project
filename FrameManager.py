@@ -13,7 +13,7 @@ class FrameManager:
         return header_bytes + cmd_bytes + length_bytes + message_bytes
     
     #Undo the paquet to get cleared infos from the server
-    def undo_packet(self, packet):
+    def undo_packet(packet):
         #We retrieve the first 3 bytes of our responses (so from 0 --> 3 not included)
         header = packet[0:3].decode('ascii')
         #Get the bytes for the CMD
@@ -21,7 +21,7 @@ class FrameManager:
         #Get the bytes for the length of the payload (we take also the strong bits)
         length = int.from_bytes(packet[4:6], 'big')
         #Get the bytes from the payload (we multiplie by 4 to convert to bytes)
-        payload = payload[6:6+length*4]
+        payload = packet[6:6+length*4]
 
         return (header, cmd, length, payload)
     

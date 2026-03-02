@@ -15,7 +15,8 @@ class Client:
         
     
     def send(self, message, cmd):
-        self.client_socket.send(self.message_handler.encode_message(cmd, message))
+        packet = self.message_handler.encode_message(cmd, message)
+        self.client_socket.sendall(packet)
 
     def recvall(self, n):
         data = bytearray()

@@ -14,8 +14,16 @@ class command:
                 'description': "Envoie un message (texte) au serveur. Exemple : /t Hello World!"
             },
             '/s': {
-                'action': self.cmd_send_ceasar,
-                'description': "Envoie une message encrypter avec le code César. Exemple : /s Hello World!"
+                'action': self.cmd_send_shift,
+                'description': "Envoie une message encrypter avec le code César(shift). Exemple : /s Hello World!"
+            },
+            '/shift': {
+                'action': self.cmd_shift_message,
+                'description': "Fait un shift du message voulu par l'utilisateur"
+            },
+            '/deshift': {
+                'action': self.cmd_deshift_message,
+                'description': "Fait un déshift du message voulu par l'utilisateur"
             },
             '/key': {
                 'action': self.cmd_key,
@@ -35,16 +43,55 @@ class command:
     
     def cmd_send_text(self, args):
         if args:
-            self.client.send(args, '/t')
+            #We have to create a join because we created a table of our words. and now we need to group them
+            self.client.send(" ".join(args), 't')
         else:
             print("Error : the message is empty")
         
 
-    def cmd_send_ceasar(self, args):
+    def cmd_send_shift(self, args):
         if args:
-            self.client.send(args, 's')
+            #We have to create a join because we created a table of our words. and now we need to group them
+            self.client.send(" ".join(args), 's')
         else:
             print("Error : the message is empty")
+
+    def cmd_shift_message(self, message, key):
+        try:
+            key_nb = int(key)
+        except ValueError:
+            print("Error: the key must be a number")
+            return 
+        if message:
+            result = ''
+            for c in message:
+                print(c, ": ", ord(c), " + ", key_nb)
+                print((ord(c)+key_nb), " = ", chr(ord(c)+key_nb))
+                print(chr(137))
+                result += chr((ord(c) + key_nb))
+            print(result)
+        else:
+            print("Error: need a message to shift")
+
+            
+    def cmd_deshift_message(self, message, key):
+        try:
+            key_nb = int(key)
+        except ValueError:
+            print("Error: the key must be a number")
+            return 
+        if message:
+            result = ''
+            for c in message:
+                if c.islower() :
+                    result += chr((ord(c) - ord('a')-key_nb) % 26 + ord('a'))
+                elif c.isupper() :
+                    result+= chr((ord(c) - ord('A')-key_nb) % 26 + ord('A'))
+                else:
+                    result+=c
+            print(result)
+        else:
+            print("Error: need a message to shift")
         
     def cmd_key(self, args):
         if args:
@@ -78,7 +125,16 @@ class command:
         if cmd.startswith('/'):
             if cmd in self.commands:
                 action = self.commands[cmd]['action']
-                action(args)
+                if cmd == '/shift' or cmd == "/deshift":
+                    if len(args) < 2:
+                        print("Error : The command /shift needs a key and a message")
+                        print("Example : /shift 5 Hello world!")
+                        return
+                    key = args[0]
+                    message = " ".join(args[1:])
+                    action(message, key)
+                else :
+                    action(args)
             else:
                 print(f"Unkown command : {cmd}.\nType /help to see the list of command")
 

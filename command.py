@@ -16,6 +16,7 @@ class command:
             '/s': {
                 'action': self.cmd_send_shift,
                 'description': "Envoie une message encrypter avec le code César(shift). Exemple : /s Hello World!"
+<<<<<<< HEAD
             },
             '/shift': {
                 'action': self.cmd_shift_message,
@@ -24,6 +25,8 @@ class command:
             '/deshift': {
                 'action': self.cmd_deshift_message,
                 'description': "Fait un déshift du message voulu par l'utilisateur"
+=======
+>>>>>>> 47d07a45b0164cb3dee4ecf7c1023e291b080e72
             },
             '/key': {
                 'action': self.cmd_key,

@@ -14,8 +14,8 @@ class command:
                 'description': "Envoie un message (texte) au serveur. Exemple : /t Hello World!"
             },
             '/s': {
-                'action': self.cmd_send_ceasar,
-                'description': "Envoie une message encrypter avec le code César. Exemple : /s Hello World!"
+                'action': self.cmd_send_shift,
+                'description': "Envoie une message encrypter avec le code César(shift). Exemple : /s Hello World!"
             },
             '/key': {
                 'action': self.cmd_key,
@@ -35,14 +35,16 @@ class command:
     
     def cmd_send_text(self, args):
         if args:
-            self.client.send(args, '/t')
+            #We have to create a join because we created a table of our words. and now we need to group them
+            self.client.send(" ".join(args), 't')
         else:
             print("Error : the message is empty")
         
 
-    def cmd_send_ceasar(self, args):
+    def cmd_send_shift(self, args):
         if args:
-            self.client.send(args, 's')
+            #We have to create a join because we created a table of our words. and now we need to group them
+            self.client.send(" ".join(args), 's')
         else:
             print("Error : the message is empty")
         

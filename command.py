@@ -27,10 +27,10 @@ class command:
             }
         }
     
-    def cmd_help(self):
-        print("\n Commandes disponibles : ")
+    def cmd_help(self, args=None):
+        print("Commandes disponibles : ")
         for name, infos in self.commands.items():
-            print(f"{name} : ${infos['description']}")
+            print(f"{name} : {infos['description']}")  
         print("-----")
     
     def cmd_send_text(self, args):

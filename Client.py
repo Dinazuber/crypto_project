@@ -15,9 +15,10 @@ class Client:
         
     
     def send(self, message, cmd):
-        self.client_socket.send(self.message_handler.encode_message(cmd, message))
+        packet = self.message_handler.encode_message(cmd, message)
+        self.client_socket.sendall(packet)
 
-    def _recvall(self, n):
+    def recvall(self, n):
         data = bytearray()
         while len(data) < n:
             packet = self.client_socket.recv(n-len(data))
@@ -28,7 +29,7 @@ class Client:
     
     def receive(self):
         while True:
-            header_data = self._recvall(6)
+            header_data = self.recvall(6)
             #We check if we have our 6 first bytes
             if not header_data:
                 break #if not, we end our action
@@ -41,7 +42,7 @@ class Client:
             payload_data = b''
             if payload_size > 0:
                 #if we got something in the payload (like a message)
-                payload_data = self.client_socket.recvall(payload_size)
+                payload_data = self.recvall(payload_size)
                 if not payload_data:
                     break #if we got nothing into our message
 

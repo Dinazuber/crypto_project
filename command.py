@@ -25,6 +25,10 @@ class command:
                 'action': self.cmd_deshift_message,
                 'description': "Fait un déshift du message voulu par l'utilisateur"
             },
+            '/vigenere': {
+                'action': self.cmd_vigenere,
+                'description': "Fait un Vigenère du message voulu par l'utilisateur"
+            },
             '/key': {
                 'action': self.cmd_key,
                 'description': "Assigne et envoie au serveur une clé. Exemple : /key 1234"
@@ -92,6 +96,15 @@ class command:
             print(result)
         else:
             print("Error: need a message to shift")
+
+    def cmd_vigenere(self, message, key):
+        if message:
+            result = ""
+            for i, c in enumerate(message):
+                key_c = key[i%len(key)]
+                new_c = chr(ord(c) + ord(key_c))
+                result += new_c
+        print(result)
         
     def cmd_key(self, args):
         if args:
@@ -125,7 +138,7 @@ class command:
         if cmd.startswith('/'):
             if cmd in self.commands:
                 action = self.commands[cmd]['action']
-                if cmd == '/shift' or cmd == "/deshift":
+                if cmd == '/shift' or cmd == "/deshift" or cmd == "/vigenere":
                     if len(args) < 2:
                         print("Error : The command /shift needs a key and a message")
                         print("Example : /shift 5 Hello world!")

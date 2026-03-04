@@ -15,8 +15,7 @@ class command:
             },
             '/s': {
                 'action': self.cmd_send_shift,
-                'description': "Envoie une message encrypter avec le code César(shift). Exemple : /s Hello World!"
-<<<<<<< HEAD
+                'description': "Envoie un message encrypter avec le code César(shift). Exemple : /s Hello World!"
             },
             '/shift': {
                 'action': self.cmd_shift_message,
@@ -25,8 +24,6 @@ class command:
             '/deshift': {
                 'action': self.cmd_deshift_message,
                 'description': "Fait un déshift du message voulu par l'utilisateur"
-=======
->>>>>>> 47d07a45b0164cb3dee4ecf7c1023e291b080e72
             },
             '/key': {
                 'action': self.cmd_key,
@@ -69,8 +66,8 @@ class command:
             result = ''
             for c in message:
                 print(c, ": ", ord(c), " + ", key_nb)
+                print("salut", chr(128))
                 print((ord(c)+key_nb), " = ", chr(ord(c)+key_nb))
-                print(chr(137))
                 result += chr((ord(c) + key_nb))
             print(result)
         else:

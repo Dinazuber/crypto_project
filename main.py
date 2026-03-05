@@ -9,10 +9,13 @@ def main():
     
     console_reader = command(client)
 
+    #Create a new thread to do async code
     recv_msg = threading.Thread(target=client.receive)
+    #If we stop the program somewhere else, it also stops here
     recv_msg.daemon = True
     recv_msg.start()
 
+    #We check anytime if a new command is typed by the user
     while True:
         msg = input('>')
         cmd, args = console_reader.parse_console(msg)

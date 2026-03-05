@@ -10,6 +10,7 @@ class Client:
     def connect(self, IP_address, port):
         try:
             self.client_socket.connect((IP_address, port))
+            print("Connection is set! Type /help to see the list of commands")
         except Exception as e:
             print(f"Error : {e}")
         

@@ -29,6 +29,10 @@ class command:
                 'action': self.cmd_vigenere,
                 'description': "Fait un Vigenère du message voulu par l'utilisateur"
             },
+            '/devigenere': {
+                'action': self.cmd_devigenere,
+                'description': "Fait un Vigenère du message voulu par l'utilisateur"
+            },
             '/key': {
                 'action': self.cmd_key,
                 'description': "Assigne et envoie au serveur une clé. Exemple : /key 1234"
@@ -69,11 +73,9 @@ class command:
         if message:
             result = ''
             for c in message:
-                print(c, ": ", ord(c), " + ", key_nb)
-                print("salut", chr(128))
-                print((ord(c)+key_nb), " = ", chr(ord(c)+key_nb))
                 result += chr((ord(c) + key_nb))
-            print(result)
+            self.client.send(result, 's')
+            print(f"Sending the result \"{result}\" to the server")
         else:
             print("Error: need a message to shift")
 
@@ -104,7 +106,21 @@ class command:
                 key_c = key[i%len(key)]
                 new_c = chr(ord(c) + ord(key_c))
                 result += new_c
-        print(result)
+            self.client.send(result, 's')
+            print(f"Sending the result \"{result}\" to the server")
+        else:
+            print("Error : you must have a message and a key!")
+
+    def cmd_devigenere(self, message, key):
+        if message:
+            result = ""
+            for i, c in enumerate(message):
+                key_c = key[i%len(key)]
+                new_c = chr(ord(c) - ord(key_c))
+                result += new_c
+            print(result)
+        else :
+            print("Error : must have a message and a key!")
         
     def cmd_key(self, args):
         if args:
@@ -138,7 +154,7 @@ class command:
         if cmd.startswith('/'):
             if cmd in self.commands:
                 action = self.commands[cmd]['action']
-                if cmd == '/shift' or cmd == "/deshift" or cmd == "/vigenere":
+                if cmd == '/shift' or cmd == "/deshift" or cmd == "/vigenere" or cmd=="/devigenere":
                     if len(args) < 2:
                         print("Error : The command /shift needs a key and a message")
                         print("Example : /shift 5 Hello world!")

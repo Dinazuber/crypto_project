@@ -13,8 +13,6 @@ def main():
     recv_msg.daemon = True
     recv_msg.start()
 
-    print("Connection is set 👍")
-
     while True:
         msg = input('>')
         cmd, args = console_reader.parse_console(msg)

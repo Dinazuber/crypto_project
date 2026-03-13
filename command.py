@@ -1,4 +1,5 @@
 import sys
+from collections import Counter
 
 class command:
     def __init__(self, client):
@@ -85,25 +86,35 @@ class command:
             print("Error: need a message to shift")
 
     #TODO Finish to complete this method     
-    def cmd_deshift_message(self, message, key):
-        try:
-            key_nb = int(key)
-        except ValueError:
-            print("Error: the key must be a number")
-            return 
-        if message:
-            result = ''
-            for c in message:
-                if c.islower() :
-                    result += chr((ord(c) - ord('a')-key_nb) % 26 + ord('a'))
-                elif c.isupper() :
-                    result+= chr((ord(c) - ord('A')-key_nb) % 26 + ord('A'))
-                else:
-                    result+=c
-            print(result)
-        else:
-            print("Error: need a message to shift")
+    def cmd_deshift_message(self, cipher):
+        if not cipher: 
+            return "Must have a message to decrypt"
+        
+        #We're gonna count how many times each charater appearse
+        counts_nbLetter = Counter(cipher)
+        #Keep only the letter the most used, and not the nb of times
+        common_items = counts_nbLetter.most_common(2)
+        most_frequent_letter, _ = common_items[0]
 
+        if most_frequent_letter == '*':
+            most_frequent_letter, _ = common_items[1]
+            print(most_frequent_letter)
+        else:
+            print(most_frequent_letter)
+        
+        #Now, we're testing the must used number - the most used letter in general ("e")
+        if ord(most_frequent_letter) < ord('e'):
+            probable_key = ord('e') - ord(most_frequent_letter)
+        else :
+            probable_key = ord(most_frequent_letter) - ord('e')
+
+        result = ""
+        for c in cipher:
+            result += chr(ord(c) - probable_key)
+        
+        print(f"The probably key is : {probable_key}\nAnd the probable message is {result}")
+
+        
     #Do the vigenere algo to the message with the key and send it to the server
     def cmd_vigenere(self, message, key):
         if message:
@@ -164,7 +175,7 @@ class command:
         if cmd.startswith('/'):
             if cmd in self.commands:
                 action = self.commands[cmd]['action']
-                if cmd == '/shift' or cmd == "/deshift" or cmd == "/vigenere" or cmd=="/devigenere":
+                if cmd == '/shift' or cmd == "/vigenere" or cmd=="/devigenere":
                     if len(args) < 2:
                         print("Error : The command /shift needs a key and a message")
                         print("Example : /shift 5 Hello world!")
@@ -172,6 +183,10 @@ class command:
                     key = args[0]
                     message = " ".join(args[1:])
                     action(message, key)
+
+                elif cmd == "/deshift":
+                    message = " ".join(args)
+                    action(message)
                 else :
                     action(args)
             else:

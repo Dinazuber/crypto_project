@@ -61,6 +61,7 @@ class Client:
 
             sys.stdout.write(">")
             sys.stdout.flush()
+            return message
 
     #Close the connection with the server 
     def close(self):

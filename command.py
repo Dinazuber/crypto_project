@@ -1,5 +1,6 @@
 import sys
 from collections import Counter
+import sympy
 
 class command:
     def __init__(self, client):
@@ -34,6 +35,14 @@ class command:
             '/devigenere': {
                 'action': self.cmd_devigenere,
                 'description': "Fait un Vigenère du message voulu par l'utilisateur"
+            },
+            '/rsaencrypt': {
+                'action': self.cmd_rsa_encrypt,
+                'description': "Fait un encryptage en RSA du message voulu par l'utilisateur"
+            },
+            '/rsadecrypt': {
+                'action': self.cmd_rsa_encrypt,
+                'description': "Fait un encryptage en RSA du message voulu par l'utilisateur"
             },
             '/key': {
                 'action': self.cmd_key,
@@ -139,6 +148,37 @@ class command:
             print(result)
         else :
             print("Error : must have a message and a key!")
+
+    def cmd_rsa_encrypt(self,message, n=None, e_key=None):
+        if n is None or e_key is None:
+            print("Erreur : Cette fonction nécessite les arguments N et E.")
+            return
+
+        try:
+            N = int(n)
+            e = int(e_key)
+        except ValueError:
+            print("Erreur : N et E doivent être des entiers.")
+            return
+
+        if not message:
+            print("Erreur : Message vide.")
+            return
+
+        # 2. Chiffrement
+        encrypted_blocks = []
+    
+        for char in message:
+            # UTILISATION DE POW(a, b, mod) - Indispensable !
+            cipher_value = pow(ord(char), e, N)
+            encrypted_blocks.append(int(cipher_value))
+
+        # 3. Formatage de la réponse
+        # On sépare les nombres par un espace pour que le serveur puisse les distinguer
+        result = " ".join(encrypted_blocks)
+
+        print(f"Envoi du message chiffré : {result}")
+        self.client.send(result, 's')
     
     #Send the key founded to the server
     def cmd_key(self, args):
@@ -187,6 +227,11 @@ class command:
                 elif cmd == "/deshift":
                     message = " ".join(args)
                     action(message)
+                elif cmd == "/rsaencrypt":
+                    n = args[0]
+                    e = args[1]
+                    message = " ".join(args[2:])
+                    action(message, n, e)
                 else :
                     action(args)
             else:

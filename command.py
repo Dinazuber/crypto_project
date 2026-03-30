@@ -2,6 +2,7 @@ import sys
 from collections import Counter
 from  sympy import randprime
 import random
+from hashlib import sha256
 
 class command:
     def __init__(self, client):
@@ -39,7 +40,7 @@ class command:
             },
             '/rsakeys': {
                 'action': self.cmd_prepareKeys,
-                'description': "Fait un encryptage en RSA du message voulu par l'utilisateur"
+                'description': "Prépare une paire de clé RSA"
             },
             '/rsaencrypt': {
                 'action': self.cmd_rsa_encrypt,
@@ -47,7 +48,11 @@ class command:
             },
             '/rsadecrypt': {
                 'action': self.cmd_rsa_decrypt,
-                'description': "Fait un encryptage en RSA du message voulu par l'utilisateur"
+                'description': "Fait un décryptage en RSA du message voulu par l'utilisateur"
+            },
+            '/hash': {
+                'action': self.cmd_hash,
+                'description': "Fait un hashing du message voulu par l'utilisateur"
             },
             '/key': {
                 'action': self.cmd_key,
@@ -186,7 +191,7 @@ class command:
 
     def cmd_rsa_decrypt(self,message, n=None, d_key=None):
         if n is None or d_key is None:
-            print("Erreur : Cette fonction nécessite les arguments N et E.")
+            print("Erreur : Cette fonction nécessite les arguments N et d.")
             return
 
         try:
@@ -261,6 +266,11 @@ class command:
             self.client.send(value, 'k')
         else:
             print("Error : Please send a correct key")
+
+    def cmd_hash(self, message):
+        result = sha256(message.encode('utf-8')).hexdigest()
+        print(f"Sended : {result}")
+        self.client.send(result, 's')
         
     #Disconnect and close the program
     def cmd_quit(self):
@@ -297,7 +307,7 @@ class command:
                     message = " ".join(args[1:])
                     action(message, key)
 
-                elif cmd == "/deshift":
+                elif cmd == "/deshift" or cmd == "/hash":
                     message = " ".join(args)
                     action(message)
                 elif cmd == "/rsaencrypt" or cmd == "/rsadecrypt":

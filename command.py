@@ -1,6 +1,7 @@
 import sys
 from collections import Counter
-import sympy
+from  sympy import randprime
+import random
 
 class command:
     def __init__(self, client):
@@ -36,12 +37,16 @@ class command:
                 'action': self.cmd_devigenere,
                 'description': "Fait un Vigenère du message voulu par l'utilisateur"
             },
+            '/rsakeys': {
+                'action': self.cmd_prepareKeys,
+                'description': "Fait un encryptage en RSA du message voulu par l'utilisateur"
+            },
             '/rsaencrypt': {
                 'action': self.cmd_rsa_encrypt,
                 'description': "Fait un encryptage en RSA du message voulu par l'utilisateur"
             },
             '/rsadecrypt': {
-                'action': self.cmd_rsa_encrypt,
+                'action': self.cmd_rsa_decrypt,
                 'description': "Fait un encryptage en RSA du message voulu par l'utilisateur"
             },
             '/key': {
@@ -170,8 +175,7 @@ class command:
     
         for char in message:
             # UTILISATION DE POW(a, b, mod) - Indispensable !
-            cipher_value = pow(ord(char), e, N)
-            encrypted_blocks.append(int(cipher_value))
+            encrypted_blocks += str((int(char) ** e) % N).zfill(2)
 
         # 3. Formatage de la réponse
         # On sépare les nombres par un espace pour que le serveur puisse les distinguer
@@ -179,6 +183,75 @@ class command:
 
         print(f"Envoi du message chiffré : {result}")
         self.client.send(result, 's')
+
+    def cmd_rsa_decrypt(self,message, n=None, d_key=None):
+        if n is None or d_key is None:
+            print("Erreur : Cette fonction nécessite les arguments N et E.")
+            return
+
+        try:
+            N = int(n)
+            d = int(d_key)
+        except ValueError:
+            print("Erreur : N et d doivent être des entiers.")
+            return
+
+        if not message:
+            print("Erreur : Message vide.")
+            return
+
+        # 2. Chiffrement
+        encrypted_blocks = message.split()
+        plaintext = []
+
+        for char in encrypted_blocks:
+            decrypted_char = pow(int(char), d, N)
+            try:
+                plaintext.append(chr(decrypted_char).zfill(2))
+            except ValueError:
+                plaintext.append(f"[{decrypted_char}]")
+
+        # 3. Formatage de la réponse
+        # On sépare les nombres par un espace pour que le serveur puisse les distinguer
+        result = " ".join(plaintext)
+        print(result)
+
+    #Find the mutiple
+    def gcd(self, a, b):
+        if(b == 0):
+            return abs(a)
+        else:
+            return self.gcd(b, a % b)
+
+    def cmd_prepareKeys(self):
+        #Get prime numbers
+        p = randprime(100, 100000)
+        q = randprime(1000, 1000000)
+
+        #Check that p != q
+        while(p == q):
+            q = randprime(1000, 1000000)
+
+        #Modular
+        N = p * q
+
+        #Modular for private key
+        N0 = (p-1)*(q-1)
+
+        #Get e for public key
+        start = random.randint(10000, 100000)
+        for i in range(start, N0):
+            if self.gcd(i, N0) == 1:
+                e = i
+                break
+        
+        try:
+            d = pow(e, -1, N0)
+        except ValueError:
+            print("Error: e is not inversible")
+            return
+        
+        print(f"Voici la clé : N={N}\ne={e}\nd={d}")
     
     #Send the key founded to the server
     def cmd_key(self, args):
@@ -227,11 +300,13 @@ class command:
                 elif cmd == "/deshift":
                     message = " ".join(args)
                     action(message)
-                elif cmd == "/rsaencrypt":
+                elif cmd == "/rsaencrypt" or cmd == "/rsadecrypt":
                     n = args[0]
-                    e = args[1]
+                    e = args[1] #Becomes D if it's decrypt
                     message = " ".join(args[2:])
                     action(message, n, e)
+                elif cmd == "/rsakeys":
+                    action()
                 else :
                     action(args)
             else:

@@ -1,13 +1,15 @@
 from Client import Client
 from command import command
 import threading
+from mainWindow import mainWindow as launch_ui
 
 def main():
     print("Hello from crypto-project!")
     client = Client()
     client.connect("vlbelintrocrypto.hevs.ch", 6000)
-    
+
     console_reader = command(client)
+    mainWindow = launch_ui(client,console_reader)
 
     #Create a new thread to do async code
     recv_msg = threading.Thread(target=client.receive)
@@ -22,4 +24,4 @@ def main():
         console_reader.execute_cmd(cmd, args)
 
 if __name__ == "__main__":
-    main()
+    main()  

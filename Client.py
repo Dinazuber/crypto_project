@@ -30,8 +30,7 @@ class Client:
             data.extend(packet)
         return bytes(data)
     
-    #Recieve all the data, decode the message and print the result in the console
-    def receive(self):
+    def receive(self, on_message=None):
         while True:
             header_data = self.recvall(6)
             #We check if we have our 6 first bytes
@@ -58,6 +57,9 @@ class Client:
             header, cmd, length, message = self.message_handler.decode_message(full_packet)
 
             print(f"[{cmd}] Server : {message}")
+
+            if on_message:
+                on_message(message)
 
             sys.stdout.write(">")
             sys.stdout.flush()

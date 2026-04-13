@@ -7,17 +7,20 @@ class Client:
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.message_handler = MessageHandler()
 
+    #Connects our program to the server (with the socket lib of python)
     def connect(self, IP_address, port):
         try:
             self.client_socket.connect((IP_address, port))
+            print("Connection is set! Type /help to see the list of commands")
         except Exception as e:
             print(f"Error : {e}")
         
-    
+    #Send a message with a type to the server. Ex : send("Hello world!", "t")
     def send(self, message, cmd):
         packet = self.message_handler.encode_message(cmd, message)
         self.client_socket.sendall(packet)
 
+    #Receive the data from the server and returns only the data wanted by the max length (n)
     def recvall(self, n):
         data = bytearray()
         while len(data) < n:
@@ -60,8 +63,9 @@ class Client:
 
             sys.stdout.write(">")
             sys.stdout.flush()
+            #return message
 
-    
+    #Close the connection with the server 
     def close(self):
-        self.client_socket.close
+        self.client_socket.close()
     

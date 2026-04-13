@@ -176,16 +176,9 @@ class command:
             return
 
         # 2. Chiffrement
-        encrypted_blocks = []
     
-        for char in message:
-            # UTILISATION DE POW(a, b, mod) - Indispensable !
-            encrypted_blocks += str((int(char) ** e) % N).zfill(2)
-
-        # 3. Formatage de la réponse
-        # On sépare les nombres par un espace pour que le serveur puisse les distinguer
-        result = " ".join(encrypted_blocks)
-
+        result = [pow(ord(c), e, N) for c in message]
+        result = ' '.join(map(str, result))
         print(f"Envoi du message chiffré : {result}")
         self.client.send(result, 's')
 

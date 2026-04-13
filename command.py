@@ -160,6 +160,8 @@ class command:
             print("Error : must have a message and a key!")
 
     def cmd_rsa_encrypt(self,message, n=None, e_key=None):
+        change_out_type = False
+        result = []
         if n is None or e_key is None:
             print("Erreur : Cette fonction nécessite les arguments N et E.")
             return
@@ -176,9 +178,16 @@ class command:
             return
 
         # 2. Chiffrement
-    
-        result = [pow(ord(c), e, N) for c in message]
-        result = ' '.join(map(str, result))
+        print("Salut")
+        for letter in message:
+            if isinstance(letter,str):
+                letter = ord(letter)
+                change_out_type= True
+            result.append(pow(letter, e, N))
+            if change_out_type:
+                return str(result)
+        print(result)
+        result = "".join([chr(n) for n in result])
         print(f"Envoi du message chiffré : {result}")
         self.client.send(result, 's')
 

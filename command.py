@@ -1,6 +1,6 @@
 import sys
 from collections import Counter
-from  sympy import randprime
+from sympy import randprime
 import random
 from hashlib import sha256
 
@@ -161,7 +161,7 @@ class command:
 
     def cmd_rsa_encrypt(self,message, n=None, e_key=None):
         change_out_type = False
-        result = []
+        result = b""
         if n is None or e_key is None:
             print("Erreur : Cette fonction nécessite les arguments N et E.")
             return
@@ -176,35 +176,26 @@ class command:
         if not message:
             print("Erreur : Message vide.")
             return
-
-        # 2. Chiffrement
-        print("Salut")
-        for letter in message:
-            if isinstance(letter,str):
-                letter = ord(letter)
-                change_out_type= True
-            result.append(pow(letter, e, N))
-            if change_out_type:
-                return str(result)
-        print(result)
-        result = "".join([chr(n) for n in result])
+        
+        for c in message:
+            result += int.to_bytes(pow(ord(c), e, N), length=4, byteorder="big") 
         print(f"Envoi du message chiffré : {result}")
         self.client.send(result, 's')
 
     def cmd_rsa_decrypt(self,message, n=None, d_key=None):
         if n is None or d_key is None:
-            print("Erreur : Cette fonction nécessite les arguments N et d.")
+            print("Error : This function must take N and d as args")
             return
 
         try:
             N = int(n)
             d = int(d_key)
         except ValueError:
-            print("Erreur : N et d doivent être des entiers.")
+            print("Error : N et d must be entiers")
             return
 
         if not message:
-            print("Erreur : Message vide.")
+            print("Error : Empty message")
             return
 
         # 2. Chiffrement
@@ -232,12 +223,12 @@ class command:
 
     def cmd_prepareKeys(self):
         #Get prime numbers
-        p = randprime(100, 100000)
-        q = randprime(1000, 1000000)
+        p = randprime(1024, 100000)
+        q = randprime(1024, 1000000)
 
         #Check that p != q
         while(p == q):
-            q = randprime(1000, 1000000)
+            q = randprime(1024, 1000000)
 
         #Modular
         N = p * q
@@ -270,7 +261,7 @@ class command:
             print("Error : Please send a correct key")
 
     def cmd_hash(self, message):
-        result = sha256(message.encode('utf-8')).hexdigest()
+        result = sha256(message.encode('utf-32-be')).hexdigest()
         print(f"Sended : {result}")
         self.client.send(result, 's')
         
@@ -294,6 +285,7 @@ class command:
         return(cmd, args)
     
     def execute_cmd(self, cmd, args):
+        print("Helloooo")
         if cmd is None:
             return
         
@@ -316,6 +308,7 @@ class command:
                     n = args[0]
                     e = args[1] #Becomes D if it's decrypt
                     message = " ".join(args[2:])
+                    print(message)
                     action(message, n, e)
                 elif cmd == "/rsakeys":
                     action()

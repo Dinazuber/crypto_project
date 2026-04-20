@@ -27,10 +27,15 @@ class MessageHandler:
 
         #Encode the CMD part into 1 byte (so we use ASCII)
         cmd_bytes = cmd.encode('ascii')
-        #Encode Length to 2 bytes and we keep only the strong bits
-        length_bytes = len(message).to_bytes(2, 'big')
         #Encode the message using UTF-32-be
-        message_bytes = message.encode('utf-32-be')
+
+        if isinstance(message, str):
+            message_bytes = message.encode('utf-32-be')
+        else:
+            message_bytes = message
+            
+        #Encode Length to 2 bytes and we keep only the strong bits
+        length_bytes = (len(message_bytes) // 4).to_bytes(2, 'big')
 
         #We get all those informations into a frame
         frame = self.frame.create_packet(cmd_bytes, length_bytes, message_bytes)

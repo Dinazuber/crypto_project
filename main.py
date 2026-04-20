@@ -13,6 +13,7 @@ def main():
 
     #Create a new thread to do async code
     recv_msg = threading.Thread(target=client.receive)
+    
     #If we stop the program somewhere else, it also stops here
     recv_msg.daemon = True
     recv_msg.start()

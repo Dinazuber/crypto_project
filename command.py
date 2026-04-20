@@ -100,7 +100,7 @@ class command:
             for c in message:
                 result += chr((ord(c) + key_nb))
             self.client.send(result, 's')
-            print(f"Sending the result \"{result}\" to the server")
+            return result
         else:
             print("Error: need a message to shift")
 
@@ -143,7 +143,7 @@ class command:
                 new_c = chr(ord(c) + ord(key_c))
                 result += new_c
             self.client.send(result, 's')
-            print(f"Sending the result \"{result}\" to the server")
+            return result
         else:
             print("Error : you must have a message and a key!")
 

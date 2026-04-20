@@ -4,6 +4,9 @@ import threading
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import QFile
+from sympy import randprime
+from sympy import *
+from random import randint
 
 class mainWindow:
 
@@ -49,6 +52,7 @@ class mainWindow:
         print(w("BCS"))
 
 #FUNC FOR THE BUTTON DOING THE APPEARANCE
+
 
         def showTextMode():
             w("BImage").move(560, 80)
@@ -123,19 +127,35 @@ class mainWindow:
             w("label_Modular").hide()
             w("label_PublicKey").hide()
 
+        def hideDecode():
+            w("BDecode").hide()
+
+        def showDecode():
+            w("BDecode").show()
+
+        def hideBFindKey():
+            w("BFindKey").hide()
+
+        def showBFindKey():
+            w("BFindKey").show()
+
         def hideSingleShift():
+            w("BEncodeSS").hide()
             w("TextSSKey").hide()
             w("label_SSKey").hide()
 
         def showSingleShift():
+            w("BEncodeSS").show()
             w("TextSSKey").show()
             w("label_SSKey").show()
 
         def hideVigenere():
+            w("BEncodeVigenere").hide()
             w("label_Vigenere").hide()
             w("TextVigenere").hide()
 
         def showVigenere():
+            w("BEncodeVigenere").show()
             w("label_Vigenere").show()
             w("TextVigenere").show()
 
@@ -184,7 +204,67 @@ class mainWindow:
 
 #FUNC FOR BUTTONS HAVING SOME FUNCTIONNALITIES
 
-        def encode():
+        def findPrimaryFactors(p):
+            psub = p - 1
+            divider = 2
+            primeFactors = []
+            while (isprime(psub)==False):
+                while (psub % divider != 0):
+                    divider += 1
+                primeFactors.append(divider)
+                psub = psub // divider
+                divider = 2
+            if psub not in primeFactors:
+                primeFactors.append(psub)
+            return primeFactors
+
+
+        def findGenerator(p):
+            primeFactors = findPrimaryFactors(p)
+            is_generator = True
+            for g in range(2, p):
+                is_generator = True
+                for q in primeFactors:
+                    x = pow(g, (p-1)//q, p)
+                    if (x == 1):
+                        is_generator = False
+                if (is_generator == True):
+                    return g
+                
+                
+        def computeHalfKey():
+            p = int(w("TextMW").toPlainText())
+            privateA = randint(2, p-2)
+            w("TextPrivateA").setPlainText(str(privateA))
+            a = privateA
+            g = int(w("TextGenerator").toPlainText())
+            public_gA = pow(g, a, p)
+            w("TextPublicgA").setPlainText(str(public_gA))
+
+        def generateModulo():
+            maxRandomModulo = w("TextMRM").toPlainText()
+            maxRandomModulo = int(maxRandomModulo)
+            p = randprime(2,maxRandomModulo)
+            w("TextMW").setPlainText(str(p))
+            g = findGenerator(p)
+            w("TextGenerator").setPlainText(str(g))
+
+        def ComputeSecret():
+            gB = int(w("TextPublicgB").toPlainText())
+            a = int(w("TextPrivateA").toPlainText())
+            p = int(w("TextMW").toPlainText())
+
+            MutualSecret = pow(gB, a, p)
+            w("TextMS").setPlainText(str(MutualSecret))
+
+
+        def vigenereEncode():
+            text = w("TextSend").toPlainText()
+            key = w("TextVigenere").toPlainText()
+            encoded = command.cmd_vigenere(text, key)
+            w("TextEncoded").setPlainText(encoded)
+
+        def shiftEncode():
             text = w("TextSend").toPlainText()
             key = w("TextSSKey").toPlainText()
             encoded = command.cmd_shift_message(text, key)
@@ -194,12 +274,20 @@ class mainWindow:
         def getResponseFromServer(text):
             w("TextLog").append(text)
 
+        def send_encoded():
+            text = w("TextEncoded").toPlainText()
+            self.client.send(text, 't')
+
+
         def send_clear():
             text = w("TextSend").toPlainText()
-            if w("SendToServerOnly").isChecked():
-                self.client.send(text, 's')
+            if (text == ""):
+                getResponseFromServer("Your message can't be nothing")
             else:
-                self.client.send(text, 't')
+                if w("SendToServerOnly").isChecked():
+                    self.client.send(text, 's')
+                else:
+                    self.client.send(text, 't')
 
         def clearText():
             w("TextSend").clear()
@@ -216,6 +304,8 @@ class mainWindow:
 #START
         
         w("TextSend").hide()
+        hideBFindKey()
+        hideDecode()
         hideVigenere()
         hideDiffieHellman()
         hideSingleShift()
@@ -231,7 +321,12 @@ class mainWindow:
 
 #BUTTON CONNECTION
 
-        w("BEncode").clicked.connect(encode)
+        w("BCS").clicked.connect(ComputeSecret)
+        w("BHK").clicked.connect(computeHalfKey)
+        w("BGM").clicked.connect(generateModulo)
+        w("BSendEncoded").clicked.connect(send_encoded)
+        w("BEncodeVigenere").clicked.connect(vigenereEncode)
+        w("BEncodeSS").clicked.connect(shiftEncode)
         w("BText").clicked.connect(text_b)
         w("BImage").clicked.connect(image_b)
         w("BClear").clicked.connect(clearDiffieHellman)

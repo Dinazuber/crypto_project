@@ -205,7 +205,6 @@ class command:
             try:
                 # 1. Convert the encrypted string block to an integer
                 c = int(block)
-                print(c)
             
                 # 2. Perform the Decryption: m = c^d mod N
                 m = pow(c, d, N)
@@ -225,6 +224,7 @@ class command:
         # 3. Formatage de la réponse
         # On sépare les nombres par un espace pour que le serveur puisse les distinguer
         result = "".join(original_msg)
+        print(f"The following message is sended : {result}")
         self.client.send(result, 's')
 
 

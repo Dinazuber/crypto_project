@@ -279,10 +279,12 @@ class command:
             print("Error : Please send a correct key")
 
     def cmd_hash(self, message):
-        result = sha256(message.encode('utf-32-be')).hexdigest()
-        print(f"Sended : {result}")
-        self.client.send(result, 's')
+        result = sha256(message.encode('utf-8')).hexdigest()
+        print(f"The hash is : {result}")
+        #self.client.send(result, 's')
         return result
+        gui
+      
         
     #Disconnect and close the program
     def cmd_quit(self):

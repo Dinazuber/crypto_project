@@ -54,7 +54,7 @@ class MessageHandler:
         message_bytes = unframe[3]
 
         #We decode the message with the same utf-32-be //be means we're taking mostly the strong bits
-        message = message_bytes.decode('utf-32-be')
+        message = message_bytes.decode('utf-32-be', errors="replace")
 
         return (header, cmd, length, message)
     

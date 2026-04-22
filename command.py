@@ -227,6 +227,7 @@ class command:
         result = "".join(original_msg)
         print(f"The following message is sended : {result}")
         self.client.send(result, 's')
+        return result
 
 
     #Find the mutiple
@@ -263,8 +264,10 @@ class command:
         except ValueError:
             print("Error: e is not inversible")
             return
-        
+        result = []
+        result.append(N);result.append(e);result.append(d)
         print(f"Voici la clé : N={N}\ne={e}\nd={d}")
+        return result
     
     #Send the key founded to the server
     def cmd_key(self, args):

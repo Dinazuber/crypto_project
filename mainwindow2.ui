@@ -183,7 +183,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <bool>false</bool>
    </property>
   </widget>
-  <widget class="QToolButton" name="BDecode">
+  <widget class="QToolButton" name="BDecodeRSA">
    <property name="geometry">
     <rect>
      <x>680</x>
@@ -196,7 +196,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Decode</string>
+    <string>Decode RSA</string>
    </property>
    <property name="icon">
     <iconset theme="accessories-calculator"/>
@@ -1181,6 +1181,31 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <bool>false</bool>
    </property>
   </widget>
+  <widget class="QToolButton" name="BGenerateRSA">
+   <property name="geometry">
+    <rect>
+     <x>980</x>
+     <y>460</y>
+     <width>271</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="autoFillBackground">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Generate RSA</string>
+   </property>
+   <property name="icon">
+    <iconset theme="accessories-calculator"/>
+   </property>
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+  </widget>
   <zorder>BSHA256</zorder>
   <zorder>TextMW</zorder>
   <zorder>label_MW</zorder>
@@ -1201,7 +1226,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <zorder>TextSend</zorder>
   <zorder>TextEncoded</zorder>
   <zorder>BFindKey</zorder>
-  <zorder>BDecode</zorder>
+  <zorder>BDecodeRSA</zorder>
   <zorder>BEncodeSS</zorder>
   <zorder>SendToServerOnly</zorder>
   <zorder>label_CryptoProject</zorder>
@@ -1231,6 +1256,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <zorder>BClear</zorder>
   <zorder>BEncodeVigenere</zorder>
   <zorder>BEncodeRSA</zorder>
+  <zorder>BGenerateRSA</zorder>
  </widget>
  <resources/>
  <connections/>

@@ -116,6 +116,8 @@ class mainWindow:
             w("BSHA256").hide()
 
         def showRSA():
+            w("BGenerateRSA").show()
+            w("BDecodeRSA").show()
             w("BEncodeRSA").show()
             w("TextPrivateKey").show()
             w("TextPublicKey").show()
@@ -125,6 +127,8 @@ class mainWindow:
             w("label_PublicKey").show()
 
         def hideRSA():
+            w("BDecodeRSA").hide()
+            w("BGenerateRSA").hide()
             w("BEncodeRSA").hide()
             w("TextPrivateKey").hide()
             w("TextPublicKey").hide()
@@ -132,12 +136,6 @@ class mainWindow:
             w("label_PrivateKey").hide()
             w("label_Modular").hide()
             w("label_PublicKey").hide()
-
-        def hideDecode():
-            w("BDecode").hide()
-
-        def showDecode():
-            w("BDecode").show()
 
         def hideBFindKey():
             w("BFindKey").hide()
@@ -212,8 +210,9 @@ class mainWindow:
 
         def encodeHash():
             message = w("TextSend").toPlainText()
-            self.command.cmd_hash(message)
-            w("TextEncoded").setPlainText(message)
+            encoded = self.command.cmd_hash(message)
+            self.client.send(encoded, 's')
+            w("TextEncoded").setPlainText(encoded)
 
         def encodeRSA():
             n = int(w("TextModular").toPlainText())
@@ -221,6 +220,21 @@ class mainWindow:
             message = w("TextSend").toPlainText()
             encoded = self.command.cmd_rsa_encrypt(message,n,e)
             w("TextEncoded").setPlainText(encoded)
+
+        def generateRSA():
+            N, e, d = self.command.cmd_prepareKeys()
+            w("TextModular").setPlainText(str(N))
+            w("TextPublicKey").setPlainText(str(e))
+            w("TextPrivateKey").setPlainText(str(d))
+
+        def decodeRSA():
+            message = w("TextSend").toPlainText()
+            N = int(w("TextModular").toPlainText())
+            d = int(w("TextPrivateKey").toPlainText())
+
+            decoded = self.command.cmd_rsa_decrypt(message ,N , d)
+            w("TextEncoded").setPlainText(decoded)
+
 
         def findPrimaryFactors(p):
             psub = p - 1
@@ -323,7 +337,6 @@ class mainWindow:
         
         w("TextSend").hide()
         hideBFindKey()
-        hideDecode()
         hideVigenere()
         hideDiffieHellman()
         hideSingleShift()
@@ -342,6 +355,8 @@ class mainWindow:
 
 #BUTTON CONNECTION
 
+        w("BDecodeRSA").clicked.connect(decodeRSA)
+        w("BGenerateRSA").clicked.connect(generateRSA)
         w("BSHA256").clicked.connect(encodeHash)
         w("BEncodeRSA").clicked.connect(encodeRSA)
         w("BCS").clicked.connect(ComputeSecret)

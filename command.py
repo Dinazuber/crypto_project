@@ -181,6 +181,7 @@ class command:
             result += int.to_bytes(pow(ord(c), e, N), length=4, byteorder="big") 
         print(f"Envoi du message chiffré : {result}")
         self.client.send(result, 's')
+        return result.hex()
 
     def cmd_rsa_decrypt(self,message, n=None, d_key=None):
         if n is None or d_key is None:
@@ -264,6 +265,7 @@ class command:
         result = sha256(message.encode('utf-32-be')).hexdigest()
         print(f"Sended : {result}")
         self.client.send(result, 's')
+        return result
         
     #Disconnect and close the program
     def cmd_quit(self):

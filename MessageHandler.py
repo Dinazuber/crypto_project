@@ -39,7 +39,7 @@ class MessageHandler:
 
         #We get all those informations into a frame
         frame = self.frame.create_packet(cmd_bytes, length_bytes, message_bytes)
-        frame.__str__();
+        frame.__str__()
 
         return frame
 

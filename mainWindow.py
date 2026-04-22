@@ -3,10 +3,14 @@ import os
 import threading
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget
 from PySide6.QtUiTools import QUiLoader
-from PySide6.QtCore import QFile
+from PySide6.QtCore import QFile, QObject, Signal
 from sympy import randprime
 from sympy import *
 from random import randint
+
+class MessageReceiver(QObject):
+    message_received = Signal(str)
+
 
 class mainWindow:
 
@@ -112,6 +116,7 @@ class mainWindow:
             w("BSHA256").hide()
 
         def showRSA():
+            w("BEncodeRSA").show()
             w("TextPrivateKey").show()
             w("TextPublicKey").show()
             w("TextModular").show()
@@ -120,6 +125,7 @@ class mainWindow:
             w("label_PublicKey").show()
 
         def hideRSA():
+            w("BEncodeRSA").hide()
             w("TextPrivateKey").hide()
             w("TextPublicKey").hide()
             w("TextModular").hide()
@@ -203,6 +209,18 @@ class mainWindow:
             hideVigenere()
 
 #FUNC FOR BUTTONS HAVING SOME FUNCTIONNALITIES
+
+        def encodeHash():
+            message = w("TextSend").toPlainText()
+            self.command.cmd_hash(message)
+            w("TextEncoded").setPlainText(message)
+
+        def encodeRSA():
+            n = int(w("TextModular").toPlainText())
+            e = int(w("TextPublicKey").toPlainText())
+            message = w("TextSend").toPlainText()
+            encoded = self.command.cmd_rsa_encrypt(message,n,e)
+            w("TextEncoded").setPlainText(encoded)
 
         def findPrimaryFactors(p):
             psub = p - 1
@@ -313,14 +331,19 @@ class mainWindow:
         hideHashing()
         window.show()
 
+        receiver = MessageReceiver()
+        receiver.message_received.connect(getResponseFromServer)
+
         threading.Thread(
             target=self.client.receive,
-            args=(getResponseFromServer,),
+            args=(receiver.message_received.emit,),
             daemon=True
         ).start()
 
 #BUTTON CONNECTION
 
+        w("BSHA256").clicked.connect(encodeHash)
+        w("BEncodeRSA").clicked.connect(encodeRSA)
         w("BCS").clicked.connect(ComputeSecret)
         w("BHK").clicked.connect(computeHalfKey)
         w("BGM").clicked.connect(generateModulo)

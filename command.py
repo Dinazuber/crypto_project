@@ -199,20 +199,34 @@ class command:
             return
 
         # 2. Chiffrement
-        encrypted_blocks = message.split()
-        plaintext = []
-
-        for char in encrypted_blocks:
-            decrypted_char = pow(int(char), d, N)
+        blocks = message.split()
+        original_msg = []
+        for block in blocks:
             try:
-                plaintext.append(chr(decrypted_char).zfill(2))
+                # 1. Convert the encrypted string block to an integer
+                c = int(block)
+            
+                # 2. Perform the Decryption: m = c^d mod N
+                m = pow(c, d, N)
+            
+                # 3. Convert the resulting integer back to a character
+                try:
+                    byte_length = (m.bit_length() + 7) // 8
+                    
+                    if byte_length > 0:
+                        original_msg.append(chr(m))
+                    else:
+                        original_msg.append('')
+                except Exception as e:
+                    print(f"Error decoding block: {e}")
             except ValueError:
-                plaintext.append(f"[{decrypted_char}]")
-
+                print(f"Error: Could not decrypt block {block}")
         # 3. Formatage de la réponse
         # On sépare les nombres par un espace pour que le serveur puisse les distinguer
-        result = " ".join(plaintext)
-        print(result)
+        result = "".join(original_msg)
+        print(f"The following message is sended : {result}")
+        self.client.send(result, 's')
+
 
     #Find the mutiple
     def gcd(self, a, b):
@@ -223,12 +237,12 @@ class command:
 
     def cmd_prepareKeys(self):
         #Get prime numbers
-        p = randprime(1024, 100000)
-        q = randprime(1024, 1000000)
+        p = randprime(20, 1000)
+        q = randprime(20, 10000)
 
         #Check that p != q
         while(p == q):
-            q = randprime(1024, 1000000)
+            q = randprime(20, 10000)
 
         #Modular
         N = p * q
@@ -237,7 +251,7 @@ class command:
         N0 = (p-1)*(q-1)
 
         #Get e for public key
-        start = random.randint(10000, 100000)
+        start = random.randint(100, 1000)
         for i in range(start, N0):
             if self.gcd(i, N0) == 1:
                 e = i
@@ -285,7 +299,6 @@ class command:
         return(cmd, args)
     
     def execute_cmd(self, cmd, args):
-        print("Helloooo")
         if cmd is None:
             return
         
@@ -308,7 +321,6 @@ class command:
                     n = args[0]
                     e = args[1] #Becomes D if it's decrypt
                     message = " ".join(args[2:])
-                    print(message)
                     action(message, n, e)
                 elif cmd == "/rsakeys":
                     action()

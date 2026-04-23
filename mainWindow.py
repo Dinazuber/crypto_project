@@ -16,8 +16,6 @@ class mainWindow:
 
     def __init__(self, client, command):
 
-
-
         self.client = client
         self.command = command
 

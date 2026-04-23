@@ -279,12 +279,24 @@ class command:
             print("Error : Please send a correct key")
 
     def cmd_hash(self, message):
-        result = sha256(message.encode('utf-8')).hexdigest()
+        cleaned_message = ""
+        for char in message:
+            val = ord(char)
+            # Si le caractère a été corrompu par le serveur (ex: ꧃, 觃, ꯂ) la valeur du char sera > 255
+            if val > 255:
+                try:
+                    # On annule l'inversion d'octets du serveur
+                    byte_len = (val.bit_length() + 7) // 8
+                    raw_utf8 = val.to_bytes(byte_len, byteorder='little')
+                    # On retrouve le vrai caractère (é, É, «, etc.)
+                    cleaned_message += raw_utf8.decode('utf-8')
+                except Exception:
+                    cleaned_message += char
+            else:
+                cleaned_message += char
+        result = sha256(cleaned_message.encode('utf-8')).hexdigest()
         print(f"The hash is : {result}")
-        #self.client.send(result, 's')
-        return result
-        gui
-      
+        return result      
         
     #Disconnect and close the program
     def cmd_quit(self):

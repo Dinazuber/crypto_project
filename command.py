@@ -99,7 +99,6 @@ class command:
             result = ''
             for c in message:
                 result += chr((ord(c) + key_nb))
-            self.client.send(result, 's')
             return result
         else:
             print("Error: need a message to shift")
@@ -142,7 +141,6 @@ class command:
                 key_c = key[i%len(key)]
                 new_c = chr(ord(c) + ord(key_c))
                 result += new_c
-            self.client.send(result, 's')
             return result
         else:
             print("Error : you must have a message and a key!")
@@ -226,7 +224,7 @@ class command:
         # On sépare les nombres par un espace pour que le serveur puisse les distinguer
         result = "".join(original_msg)
         print(f"The following message is sended : {result}")
-        self.client.send(result, 's')
+        return result
 
 
     #Find the mutiple
@@ -263,8 +261,10 @@ class command:
         except ValueError:
             print("Error: e is not inversible")
             return
-        
+        result = []
+        result.append(N);result.append(e);result.append(d)
         print(f"Voici la clé : N={N}\ne={e}\nd={d}")
+        return result
     
     #Send the key founded to the server
     def cmd_key(self, args):
@@ -276,12 +276,24 @@ class command:
             print("Error : Please send a correct key")
 
     def cmd_hash(self, message):
-        result = sha256(message.encode('utf-8')).hexdigest()
+        cleaned_message = ""
+        for char in message:
+            val = ord(char)
+            # Si le caractère a été corrompu par le serveur (ex: ꧃, 觃, ꯂ) la valeur du char sera > 255
+            if val > 255:
+                try:
+                    # On annule l'inversion d'octets du serveur
+                    byte_len = (val.bit_length() + 7) // 8
+                    raw_utf8 = val.to_bytes(byte_len, byteorder='little')
+                    # On retrouve le vrai caractère (é, É, «, etc.)
+                    cleaned_message += raw_utf8.decode('utf-8')
+                except Exception:
+                    cleaned_message += char
+            else:
+                cleaned_message += char
+        result = sha256(cleaned_message.encode('utf-8')).hexdigest()
         print(f"The hash is : {result}")
-        #self.client.send(result, 's')
-        return result
-        gui
-      
+        return result      
         
     #Disconnect and close the program
     def cmd_quit(self):

@@ -8,6 +8,7 @@ from sympy import randprime
 from sympy import *
 from random import randint
 
+# Bridge object needed to emit Qt signals from a non-Qt background thread
 class MessageReceiver(QObject):
     message_received = Signal(str)
 
@@ -16,13 +17,12 @@ class mainWindow:
 
     def __init__(self, client, command):
 
-
-
         self.client = client
         self.command = command
 
         app = QApplication(sys.argv)
         
+        # Resolve UI file relative to this script, not the working directory
         script_dir = os.path.dirname(os.path.abspath(__file__))
         ui_path = os.path.join(script_dir, "mainwindow2.ui")
 
@@ -59,12 +59,14 @@ class mainWindow:
 
 
         def showTextMode():
+            # Reposition BImage before showing it so it doesn't overlap TextSend
             w("BImage").move(560, 80)
             w("TextSend").show()
             w("BImage").show()
             w("BText").hide()
 
         def showImageMode():
+            # Hide the text input and image-confirm button; reveal the switch-back button
             w("TextSend").hide()
             w("BImage").hide()
             w("BText").show()
@@ -110,12 +112,16 @@ class mainWindow:
             w("BHK").hide()
 
         def showHashing():
+            w("BVerify").show()
             w("BSHA256").show()
 
         def hideHashing():
+            w("BVerify").hide()
             w("BSHA256").hide()
 
         def showRSA():
+            w("BGenerateRSA").show()
+            w("BDecodeRSA").show()
             w("BEncodeRSA").show()
             w("TextPrivateKey").show()
             w("TextPublicKey").show()
@@ -125,6 +131,8 @@ class mainWindow:
             w("label_PublicKey").show()
 
         def hideRSA():
+            w("BDecodeRSA").hide()
+            w("BGenerateRSA").hide()
             w("BEncodeRSA").hide()
             w("TextPrivateKey").hide()
             w("TextPublicKey").hide()
@@ -132,12 +140,6 @@ class mainWindow:
             w("label_PrivateKey").hide()
             w("label_Modular").hide()
             w("label_PublicKey").hide()
-
-        def hideDecode():
-            w("BDecode").hide()
-
-        def showDecode():
-            w("BDecode").show()
 
         def hideBFindKey():
             w("BFindKey").hide()
@@ -165,7 +167,8 @@ class mainWindow:
             w("label_Vigenere").show()
             w("TextVigenere").show()
 
-#FUNC FOR THE CONNECTION FOR THE BUTTON DOING THE APPEARANCE
+# Panel-switching callbacks: each one shows exactly one crypto panel and hides all others,
+# ensuring only the relevant controls are visible at any time.
 
         def text_b():
             showTextMode()
@@ -210,19 +213,46 @@ class mainWindow:
 
 #FUNC FOR BUTTONS HAVING SOME FUNCTIONNALITIES
 
+        def verifyHash():
+            # Compares TextEncoded (expected hash) against TextSend (hash to verify); result replaces TextEncoded
+            OurMessage = w("TextEncoded").toPlainText()
+            MessageToVerify = w("TextSend").toPlainText()
+            if (OurMessage == MessageToVerify):
+                w("TextEncoded").setPlainText("true")
+            else :
+                w("TextEncoded").setPlainText("false")
+
         def encodeHash():
             message = w("TextSend").toPlainText()
-            self.command.cmd_hash(message)
-            w("TextEncoded").setPlainText(message)
+            encoded = self.command.cmd_hash(message)
+            w("TextEncoded").setPlainText(encoded)
 
         def encodeRSA():
+            # Encrypts using public key (n=modulus, e=public exponent): c = m^e mod n
             n = int(w("TextModular").toPlainText())
             e = int(w("TextPublicKey").toPlainText())
             message = w("TextSend").toPlainText()
             encoded = self.command.cmd_rsa_encrypt(message,n,e)
             w("TextEncoded").setPlainText(encoded)
 
+        def generateRSA():
+            # Generates a fresh RSA key pair: N=modulus, e=public exponent, d=private exponent
+            N, e, d = self.command.cmd_prepareKeys()
+            w("TextModular").setPlainText(str(N))
+            w("TextPublicKey").setPlainText(str(e))
+            w("TextPrivateKey").setPlainText(str(d))
+
+        def decodeRSA():
+            # Decrypts using private key (N=modulus, d=private exponent): m = c^d mod N
+            message = w("TextSend").toPlainText()
+            N = int(w("TextModular").toPlainText())
+            d = int(w("TextPrivateKey").toPlainText())
+            decoded = self.command.cmd_rsa_decrypt(message ,N , d)
+            w("TextEncoded").setPlainText(decoded)
+
+
         def findPrimaryFactors(p):
+            # Returns the distinct prime factors of (p-1), needed to test primitive roots
             psub = p - 1
             divider = 2
             primeFactors = []
@@ -238,6 +268,7 @@ class mainWindow:
 
 
         def findGenerator(p):
+            # A primitive root g of p satisfies: g^((p-1)/q) != 1 (mod p) for every prime factor q of (p-1)
             primeFactors = findPrimaryFactors(p)
             is_generator = True
             for g in range(2, p):
@@ -251,6 +282,7 @@ class mainWindow:
                 
                 
         def computeHalfKey():
+            # DH step 1: pick a random private key a in [2, p-2], then compute public half-key g^a mod p
             p = int(w("TextMW").toPlainText())
             privateA = randint(2, p-2)
             w("TextPrivateA").setPlainText(str(privateA))
@@ -260,6 +292,7 @@ class mainWindow:
             w("TextPublicgA").setPlainText(str(public_gA))
 
         def generateModulo():
+            # Picks a random prime p below the user-supplied max, then finds its primitive root g
             maxRandomModulo = w("TextMRM").toPlainText()
             maxRandomModulo = int(maxRandomModulo)
             p = randprime(2,maxRandomModulo)
@@ -268,6 +301,7 @@ class mainWindow:
             w("TextGenerator").setPlainText(str(g))
 
         def ComputeSecret():
+            # DH step 2: shared secret = gB^a mod p  (same result as gA^b mod p on the other side)
             gB = int(w("TextPublicgB").toPlainText())
             a = int(w("TextPrivateA").toPlainText())
             p = int(w("TextMW").toPlainText())
@@ -293,8 +327,9 @@ class mainWindow:
             w("TextLog").append(text)
 
         def send_encoded():
+            # Encrypted messages are always sent to the server only (never broadcast raw)
             text = w("TextEncoded").toPlainText()
-            self.client.send(text, 't')
+            self.client.send(text, 's')
 
 
         def send_clear():
@@ -302,6 +337,7 @@ class mainWindow:
             if (text == ""):
                 getResponseFromServer("Your message can't be nothing")
             else:
+                # 's' = server only, 't' = broadcast to all peers
                 if w("SendToServerOnly").isChecked():
                     self.client.send(text, 's')
                 else:
@@ -319,11 +355,10 @@ class mainWindow:
             w("TextPublicgA").clear()
             w("TextPublicgB").clear()
 
-#START
-        
+# --- Initial UI state: hide all crypto panels and optional widgets so the window
+#     starts clean; the user picks a mode via the sidebar buttons.
         w("TextSend").hide()
         hideBFindKey()
-        hideDecode()
         hideVigenere()
         hideDiffieHellman()
         hideSingleShift()
@@ -334,6 +369,7 @@ class mainWindow:
         receiver = MessageReceiver()
         receiver.message_received.connect(getResponseFromServer)
 
+        # daemon=True so the thread exits automatically when the main window closes
         threading.Thread(
             target=self.client.receive,
             args=(receiver.message_received.emit,),
@@ -342,6 +378,9 @@ class mainWindow:
 
 #BUTTON CONNECTION
 
+        w("BVerify").clicked.connect(verifyHash)
+        w("BDecodeRSA").clicked.connect(decodeRSA)
+        w("BGenerateRSA").clicked.connect(generateRSA)
         w("BSHA256").clicked.connect(encodeHash)
         w("BEncodeRSA").clicked.connect(encodeRSA)
         w("BCS").clicked.connect(ComputeSecret)

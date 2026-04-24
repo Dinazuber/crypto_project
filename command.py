@@ -99,7 +99,6 @@ class command:
             result = ''
             for c in message:
                 result += chr((ord(c) + key_nb))
-            self.client.send(result, 's')
             return result
         else:
             print("Error: need a message to shift")
@@ -142,7 +141,6 @@ class command:
                 key_c = key[i%len(key)]
                 new_c = chr(ord(c) + ord(key_c))
                 result += new_c
-            self.client.send(result, 's')
             return result
         else:
             print("Error : you must have a message and a key!")
@@ -226,7 +224,6 @@ class command:
         # On sépare les nombres par un espace pour que le serveur puisse les distinguer
         result = "".join(original_msg)
         print(f"The following message is sended : {result}")
-        self.client.send(result, 's')
         return result
 
 

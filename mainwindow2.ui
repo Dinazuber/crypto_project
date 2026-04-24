@@ -295,7 +295,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Send Encoded</string>
+    <string>Send Encoded / Decoded to the server</string>
    </property>
    <property name="icon">
     <iconset theme="accessories-calculator"/>
@@ -1206,6 +1206,31 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <bool>false</bool>
    </property>
   </widget>
+  <widget class="QToolButton" name="BVerify">
+   <property name="geometry">
+    <rect>
+     <x>680</x>
+     <y>460</y>
+     <width>271</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="autoFillBackground">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Verify</string>
+   </property>
+   <property name="icon">
+    <iconset theme="accessories-calculator"/>
+   </property>
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+  </widget>
   <zorder>BSHA256</zorder>
   <zorder>TextMW</zorder>
   <zorder>label_MW</zorder>
@@ -1257,6 +1282,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <zorder>BEncodeVigenere</zorder>
   <zorder>BEncodeRSA</zorder>
   <zorder>BGenerateRSA</zorder>
+  <zorder>BVerify</zorder>
  </widget>
  <resources/>
  <connections/>
